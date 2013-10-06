@@ -1,0 +1,137 @@
+---------------------------------------------------------------------------------------------------
+Feature: Starting a new game
+---------------------------------------------------------------------------------------------------
+
+Scenario: Player 1 enters a valid word
+Given that Andy is starting a new hangman game
+When Andy enters the word "hangman"
+Then the game is started successfully
+
+Scenario: Player 1 enters an empty word
+Given that Andy is starting a new hangman game
+When Andy enters the word ""
+Then the game is not started
+And an appropriate error message is displayed
+
+Scenario: Player 1 enters a word that only consists of white space
+Given that Andy is starting a new hangman game
+When Andy enters the word "    "
+Then the game is not started
+And an appropriate error message is displayed
+
+Scenario: Player 1 enters a word with invalid characters
+Given that Andy is starting a new hangman game
+When Andy enters the word "ab_c"
+Then the game is not started
+And an appropriate error message is displayed stating that only letters may be entered
+
+
+---------------------------------------------------------------------------------------------------
+Feature: Guessing a letter
+---------------------------------------------------------------------------------------------------
+
+Scenario: Player 2 guesses a correct letter but does not complete the word
+Given that Andy chose the word "hangman"
+And Brad has not made any guesses
+When Brad guesses the letter "a"
+Then the guess is returned as correct
+And the letter "a" is shown in the 2nd and 6th positions
+And no other letters are shown
+And the letter "a" is added to the guessed letter list
+
+Scenario: Player 2 guesses the final letter correctly
+Given that Andy chose the word "hangman"
+And Brad has guessed "h", "a", "n" and "g"
+When Brad guesses the letter "m"
+Then the guess is returned as correct
+And the letter "m" is shown in the 5th position
+And the letter "m" is marked down in the guessed letter list
+And the game ends with Brad winning
+
+Scenario: Player 2 guesses an incorrect letter but is not on their last life
+Given that Andy chose the word "hangman"
+And Brad has already guessed the letter "z"
+When Brad guesses the letter "y"
+Then the guess is returned as incorrect
+And the letter "y" is added to the guessed letter list
+And Brad loses a life
+
+Scenario: Player 2 guesses an incorrect letter and loses their last life
+Given that Andy chose the word "hangman"
+And Brad has already guessed incorrectly 10 times with the letters [b, c, d, e, f, i, j, k, l, o]
+When Brad guesses the letter "p"
+Then the guess is returned as incorrect
+And the letter "p" is added to the guessed letter list
+And Brad loses his last life
+And the game ends with Andy winning
+
+Scenario: Player 2 guesses a character that is not a letter
+Given that Andy chose the word "hangman"
+When Brad guesses the character "+"
+Then the guess is returned as invalid
+And the character "+" is not added to the guessed letter list
+And Brad does not lose a life
+
+Scenario: Player 2 guesses a letter which is in a different case to the one in the word
+Given that Andy chose the word "hangman"
+And Brad has not made any guesses
+When Brad guesses the character "H"
+Then the guess is returned as correct
+And the character "h" is added to the guessed letter list
+And the guessed characters does not include "h" twice
+
+Scenario: Player 2 guesses a letter that has already been revealed to be in the word
+Given that Andy chose the word "hangman"
+And Brad has already guessed "h"
+When Brad guesses the letter "h"
+Then the guess is returned as invalid
+And Brad does not lose a life
+And the guessed characters does not include "h" twice
+
+Scenario: Player 2 guesses a letter that has already been guessed and is not in the word
+Given that Andy chose the word "hangman"
+And Brad has already guessed "h" and "z"
+When Brad guesses the letter "z"
+Then the guess is returned as invalid
+And Brad does not lose a life
+And a message is shown saying that he has already guessed that letter
+And the guessed characters does not include "z" twice
+
+Scenario: Player 2 guesses a letter which is in a different case to one that has already been guessed
+Given that Andy chose the word "hangman"
+And Brad has already guessed "z"
+When Brad guesses the character "Z"
+Then the guess is returned as invalid
+And Brad does not lose an extra life
+And the guessed characters does not include "z" twice
+
+Scenario: Player 2 guesses a letter when they have already won
+Given that Andy chose the word "hangman"
+And Brad has already guessed the word with [h, a, n, g, m]
+When Brad guesses the character "z"
+Then an exception is thrown
+And Brad does not lose a life
+And the game status is still win
+And the guessed characters does not include "z"
+
+Scenario: Player 2 guesses a letter when they have already lost
+Given that Andy chose the word "hangman"
+And Brad has already lost the game by guessing [b, c, d, e, f, i, j, k, l, o, p]
+When Brad guesses the character "z"
+Then an exception is thrown
+And Brad does not lose a life
+And the game status is still lose
+And the guessed characters does not include "z"
+
+...
+
+Found bugs:
+
+
+Extra:
+ - 1 hint?
+ - min & max length validation?
+ - Computer choose a word?
+ - choose number of lives
+
+
